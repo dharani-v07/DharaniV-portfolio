@@ -1,0 +1,104 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+button,
+a,
+input {
+  font-family: var(--display);
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: var(--red);
+  color: #fff;
+}
+
+.site {
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress {
+  position: fixed;
+  z-index: 300;
+  left: 0;
+  top: 0;
+  height: 3px;
+  background: var(--red);
+  width: 0;
+  transition: width 0.08s linear;
+}
+
+.ambient {
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(75px);
+  opacity: 0.14;
+}
+
+.ambient-one {
+  width: 320px;
+  height: 320px;
+  right: -140px;
+  top: 20vh;
+  background: var(--red);
+}
+
+.ambient-two {
+  width: 240px;
+  height: 240px;
+  left: -120px;
+  bottom: 18vh;
+  background: #555;
+}
+
+.arrow {
+  font-size: 15px;
+  display: inline-block;
+  line-height: 1;
+  margin-left: 6px;
+  transition: transform var(--transition-fast);
+}
+
+a:hover .arrow,
+.line-link:hover .arrow {
+  transform: translate(3px, -3px);
+}
+
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}

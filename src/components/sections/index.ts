@@ -1,0 +1,12 @@
+export * from './HeroSection'
+export * from './TickerSection'
+export * from './AboutSection'
+export * from './CapabilitiesSection'
+export * from './ProjectsSection'
+export * from './ExpertiseSection'
+export * from './StatementSection'
+export * from './ExperienceSection'
+export * from './ResearchSection'
+export * from './CredentialsSection'
+export * from './ContactSection'
+

@@ -1,0 +1,239 @@
+.modal-backdrop {
+  position: fixed;
+  z-index: 500;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  display: grid;
+  place-items: center;
+  padding: 25px;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.project-modal {
+  width: min(920px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--paper);
+  padding: 48px 52px;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-modal.dark {
+  background: var(--ink);
+  color: #fff;
+}
+
+.project-modal.red {
+  background: var(--red);
+  color: #fff;
+}
+
+.modal-header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 16px;
+}
+
+.project-modal.dark .modal-header-nav {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+.project-modal.red .modal-header-nav {
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+}
+
+.modal-nav-arrows {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-nav-btn {
+  border: 0;
+  background: none;
+  font: 500 9px var(--mono);
+  letter-spacing: 0.1em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+  opacity: 0.75;
+  padding: 4px 6px;
+  transition: opacity var(--transition-fast);
+}
+
+.modal-nav-btn:hover {
+  opacity: 1;
+}
+
+.modal-counter {
+  font: 500 9px var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+.project-modal.dark .modal-counter {
+  color: #888;
+}
+
+.project-modal.red .modal-counter {
+  color: #ffd6d6;
+}
+
+.modal-close {
+  border: 0;
+  background: none;
+  font: 500 9px var(--mono);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  opacity: 0.8;
+  transition: opacity var(--transition-fast);
+}
+
+.modal-close:hover {
+  opacity: 1;
+}
+
+.modal-number {
+  font: 500 9px var(--mono);
+  color: var(--red);
+  letter-spacing: 0.1em;
+  margin-bottom: 25px;
+}
+
+.project-modal.red .modal-number {
+  color: #ffd0d0;
+}
+
+.project-modal h2 {
+  font-size: clamp(38px, 5.5vw, 76px);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+  font-weight: 500;
+  max-width: 780px;
+  margin: 10px 0 24px;
+}
+
+.modal-description {
+  max-width: 720px;
+  color: #666159;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.dark .modal-description {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.red .modal-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.modal-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 32px 0;
+}
+
+.modal-tags span {
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  font: 500 9px var(--mono);
+}
+
+.dark .modal-tags span {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.red .modal-tags span {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  align-items: center;
+}
+
+.modal-link-btn {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 6px;
+  font: 500 9px var(--mono);
+  letter-spacing: 0.1em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-link-btn {
+  color: var(--red);
+}
+
+.red .modal-link-btn,
+.dark .modal-link-btn {
+  color: #fff;
+}
+
+.modal-btn-dismiss {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: 0 0 6px;
+  background: none;
+  font: 500 9px var(--mono);
+  letter-spacing: 0.1em;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.modal-btn-dismiss:hover {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 760px) {
+  .modal-backdrop {
+    padding: 12px;
+  }
+  .project-modal {
+    padding: 32px 20px;
+  }
+  .modal-header-nav {
+    margin-bottom: 18px;
+  }
+  .modal-actions {
+    gap: 16px;
+  }
+}
