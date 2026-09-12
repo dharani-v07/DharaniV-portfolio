@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Project, ProjectCategory } from '../../types'
 import { Arrow, SearchIcon } from '../common'
 
@@ -16,7 +16,11 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [showAll, setShowAll] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [isUserPaused, setIsUserPaused] = useState(false)
   const gridRef = useRef<HTMLDivElement>(null)
+  const isInteractingRef = useRef(false)
+  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const filteredProjects = useMemo(() => {
     let list = projects
@@ -44,49 +48,84 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
 
   const visibleProjects = showAll ? filteredProjects : filteredProjects.slice(0, 6)
 
+  // Smooth Horizontal Auto-Scroll Engine (Continuous, non-blocking)
   useEffect(() => {
+    let animId: number
     const el = gridRef.current
-    const section = el?.closest('section') as HTMLElement | null
-    if (!el || !section) return
+    if (!el) return
 
-    const onWheel = (event: WheelEvent) => {
-      if (window.innerWidth < 900) return
-      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
-
-      const gridRect = el.getBoundingClientRect()
-      const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth)
-      if (maxScroll <= 8) return
-
-      const atStart = el.scrollLeft <= 8
-      const atEnd = el.scrollLeft >= maxScroll - 8
-      const movingDown = event.deltaY > 0
-      const movingUp = event.deltaY < 0
-
-      // Only engage horizontal scroll once the cards are in full viewing position (Image 2)
-      // When scrolling down, let vertical scroll bring the full cards into view first
-      const fullyInViewForDown =
-        gridRect.bottom <= window.innerHeight + 30 ||
-        gridRect.top <= Math.min(260, window.innerHeight * 0.35)
-      const inViewForUp =
-        gridRect.top >= 40 &&
-        gridRect.top <= window.innerHeight * 0.65
-
-      if (movingDown && !atEnd && fullyInViewForDown && gridRect.top > -40) {
-        event.preventDefault()
-        el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + event.deltaY * 1.35))
-      } else if (movingUp && !atStart && inViewForUp) {
-        event.preventDefault()
-        el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + event.deltaY * 1.35))
+    const scrollStep = () => {
+      if (el && !isUserPaused && !isInteractingRef.current) {
+        const maxScroll = el.scrollWidth - el.clientWidth
+        if (maxScroll > 10) {
+          if (el.scrollLeft >= maxScroll - 1) {
+            // Loop back seamlessly to start
+            el.scrollLeft = 0
+          } else {
+            el.scrollLeft += 0.8
+          }
+        }
       }
+      animId = requestAnimationFrame(scrollStep)
     }
 
-    window.addEventListener('wheel', onWheel, { passive: false })
-    return () => window.removeEventListener('wheel', onWheel)
-  }, [visibleProjects.length])
+    animId = requestAnimationFrame(scrollStep)
 
+    return () => {
+      cancelAnimationFrame(animId)
+      if (resumeTimeoutRef.current) {
+        clearTimeout(resumeTimeoutRef.current)
+      }
+    }
+  }, [visibleProjects.length, isUserPaused])
 
+  // Mouse & Touch interaction handlers for seamless pause & resume
+  const handleMouseEnter = useCallback(() => {
+    isInteractingRef.current = true
+    setIsPaused(true)
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+  }, [])
 
+  const handleMouseLeave = useCallback(() => {
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+    resumeTimeoutRef.current = setTimeout(() => {
+      isInteractingRef.current = false
+      if (!isUserPaused) {
+        setIsPaused(false)
+      }
+    }, 600)
+  }, [isUserPaused])
 
+  const handleTouchStart = useCallback(() => {
+    isInteractingRef.current = true
+    setIsPaused(true)
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+  }, [])
+
+  const handleTouchEnd = useCallback(() => {
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current)
+    resumeTimeoutRef.current = setTimeout(() => {
+      isInteractingRef.current = false
+      if (!isUserPaused) {
+        setIsPaused(false)
+      }
+    }, 1200)
+  }, [isUserPaused])
+
+  const toggleUserPause = () => {
+    setIsUserPaused(prev => {
+      const next = !prev
+      setIsPaused(next)
+      return next
+    })
+  }
+
+  const scrollManual = (direction: 'left' | 'right') => {
+    const el = gridRef.current
+    if (!el) return
+    const offset = direction === 'left' ? -340 : 340
+    el.scrollBy({ left: offset, behavior: 'smooth' })
+  }
 
   return (
     <section id="work" className="section work">
@@ -116,6 +155,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
               onClick={() => {
                 setActiveCategory(category)
                 setShowAll(false)
+                if (gridRef.current) gridRef.current.scrollLeft = 0
               }}
             >
               {category}
@@ -132,13 +172,17 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
             onChange={e => {
               setSearchQuery(e.target.value)
               setShowAll(false)
+              if (gridRef.current) gridRef.current.scrollLeft = 0
             }}
             aria-label="Search projects by title, category, or technology"
           />
           {searchQuery && (
             <button
               className="search-clear"
-              onClick={() => setSearchQuery('')}
+              onClick={() => {
+                setSearchQuery('')
+                if (gridRef.current) gridRef.current.scrollLeft = 0
+              }}
               aria-label="Clear search"
             >
               ×
@@ -154,6 +198,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
             onClick={() => {
               setActiveCategory('ALL')
               setSearchQuery('')
+              if (gridRef.current) gridRef.current.scrollLeft = 0
             }}
           >
             RESET FILTERS
@@ -161,43 +206,90 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({
         </div>
       ) : (
         <>
-          <div className="work-scroll-note"><span>HORIZONTAL EXPLORATION</span><span>MOUSE WHEEL → PROJECTS · THEN CONTINUE DOWN</span></div>
-          <div className="project-grid horizontal-projects" ref={gridRef}>
-          {visibleProjects.map(project => (
-            <article className={`project-card ${project.accent}`} key={project.id}>
+          <div className="work-scroll-note">
+            <div className="work-scroll-status">
+              <span className={`scroll-pulse-dot ${!isPaused && !isUserPaused ? 'active' : ''}`} />
+              <span>
+                {isUserPaused || isPaused
+                  ? 'AUTO-SCROLL PAUSED · SWIPE / DRAG TO EXPLORE'
+                  : 'AUTO-SCROLLING HORIZONTALLY · TAP CARD TO VIEW'}
+              </span>
+            </div>
+            <div className="work-scroll-controls">
               <button
-                className="project-open"
-                onClick={() => onSelectProject(project)}
-                aria-label={`Open case study: ${project.title}`}
+                type="button"
+                className="scroll-ctrl-btn"
+                onClick={() => scrollManual('left')}
+                aria-label="Scroll projects left"
+                title="Previous projects"
               >
-                <div className="project-top">
-                  <span>{project.number}</span>
-                  <span>{project.year}</span>
-                </div>
-                <div className="project-visual">
-                  <div className="visual-lines" />
-                  <div className="visual-shape shape-one" />
-                  <div className="visual-shape shape-two" />
-                  <span className="visual-type">{project.category}</span>
-                  <span className="visual-word">
-                    {project.title.split(' ').slice(0, 2).join(' ')}
-                  </span>
-                  <span className="visual-plus">+</span>
-                </div>
-                <div className="project-info">
-                  <p>{project.category}</p>
-                  <h3>{project.title}</h3>
-                  <span>{project.short}</span>
-                  <div className="project-meta">
-                    <span>{project.stack.slice(0, 3).join(' · ')}</span>
-                    <span>
-                      VIEW CASE <Arrow />
-                    </span>
-                  </div>
-                </div>
+                ←
               </button>
-            </article>
-          ))}
+              <button
+                type="button"
+                className={`scroll-ctrl-btn scroll-pause-btn ${isUserPaused ? 'is-paused' : ''}`}
+                onClick={toggleUserPause}
+                aria-label={isUserPaused ? 'Resume auto-scroll' : 'Pause auto-scroll'}
+                title={isUserPaused ? 'Resume auto-scroll' : 'Pause auto-scroll'}
+              >
+                {isUserPaused ? '▶ PLAY' : '⏸ PAUSE'}
+              </button>
+              <button
+                type="button"
+                className="scroll-ctrl-btn"
+                onClick={() => scrollManual('right')}
+                aria-label="Scroll projects right"
+                title="Next projects"
+              >
+                →
+              </button>
+            </div>
+          </div>
+
+          <div
+            className="project-grid horizontal-projects"
+            ref={gridRef}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+          >
+            {visibleProjects.map(project => (
+              <article className={`project-card ${project.accent}`} key={project.id}>
+                <button
+                  className="project-open"
+                  onClick={() => onSelectProject(project)}
+                  aria-label={`Open case study: ${project.title}`}
+                >
+                  <div className="project-top">
+                    <span>{project.number}</span>
+                    <span>{project.year}</span>
+                  </div>
+                  <div className="project-visual">
+                    <div className="visual-lines" />
+                    <div className="visual-shape shape-one" />
+                    <div className="visual-shape shape-two" />
+                    <span className="visual-type">{project.category}</span>
+                    <span className="visual-word">
+                      {project.title.split(' ').slice(0, 2).join(' ')}
+                    </span>
+                    <span className="visual-plus">+</span>
+                  </div>
+                  <div className="project-info">
+                    <p>{project.category}</p>
+                    <h3>{project.title}</h3>
+                    <span>{project.short}</span>
+                    <div className="project-meta">
+                      <span>{project.stack.slice(0, 3).join(' · ')}</span>
+                      <span>
+                        VIEW CASE <Arrow />
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              </article>
+            ))}
           </div>
         </>
       )}

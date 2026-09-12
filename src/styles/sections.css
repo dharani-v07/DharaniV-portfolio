@@ -994,11 +994,14 @@
     flex-direction: column;
     align-items: stretch;
   }
-  .project-grid {
+  .project-grid:not(.horizontal-projects) {
     grid-template-columns: 1fr;
   }
+  .horizontal-projects .project-visual {
+    height: 200px;
+  }
   .project-visual {
-    height: 260px;
+    height: 240px;
   }
   .skill-row {
     grid-template-columns: 35px 1fr;

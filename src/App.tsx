@@ -18,7 +18,8 @@ import {
   ResearchSection,
   StatementSection,
   TickerSection,
-  Toast
+  Toast,
+  CursorSpotlight
 } from './components'
 import {
   beyondCode,
@@ -34,7 +35,7 @@ import {
   researchData,
   skillGroupsData
 } from './data'
-import { useActiveSection, useScrollLock, useScrollProgress, useToast } from './hooks'
+import { useActiveSection, useScrollLock, useScrollProgress, useScrollReveal, use3DTilt, useToast } from './hooks'
 import { Project } from './types'
 import './styles/main.css'
 
@@ -45,11 +46,14 @@ export const App: React.FC = () => {
   const active = useActiveSection(navItems, 'top')
   const { toast, showToast } = useToast()
 
+  useScrollReveal()
+  use3DTilt()
   useScrollLock(menuOpen || activeProject !== null)
   const closeMenu = useCallback(() => setMenuOpen(false), [])
 
   return (
     <div className="site">
+      <CursorSpotlight />
       <ProgressBar progress={progress} />
       <AmbientBackground />
       <FloatingNav navItems={navItems} activeSection={active} profile={profileData} />

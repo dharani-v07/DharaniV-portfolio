@@ -1,6 +1,7 @@
 import React from 'react'
 import { ProfileInfo } from '../../types'
 import { Arrow } from '../common'
+import { HeroPortrait3D } from './HeroPortrait3D'
 
 interface HeroSectionProps {
   profile: ProfileInfo
@@ -43,19 +44,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ profile }) => {
           </div>
         </div>
 
-        <div className="hero-art" aria-hidden="true">
-          <div className="art-image">
-            <img src="/assets/dharani-portrait.png" alt="Dharani V portrait" />
-          </div>
-          <div className="art-block red" />
-          <div className="art-block dark" />
-          <div className="art-caption">
-            D / V
-            <br />
-            <small>CODE + RESEARCH</small>
-          </div>
-        </div>
+        <HeroPortrait3D />
       </div>
+
+
+
 
       <div className="hero-bottom">
         <span>SCROLL TO EXPLORE</span>
