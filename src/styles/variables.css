@@ -1,20 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
-  --paper: #f1eee8;
-  --paper-2: #e5e0d7;
+  --paper: #f4f1eb;
+  --paper-2: #e9e4dc;
   --ink: #111111;
-  --ink-2: #1a1a1a;
-  --muted: #716d66;
-  --line: #c9c3b9;
+  --ink-2: #202020;
+  --muted: #6f6b64;
+  --line: #d7d1c7;
   --red: #e52d2d;
-  --red-dark: #bb2222;
-  --red-light: #ffd6d6;
+  --red-dark: #b91f28;
+  --red-light: #ffd9d9;
+  --signal: #e52d2d;
+  --salmon: #ffaaa5;
+  --slate: #6f6b64;
+  --line-on-light: #d7d1c7;
+  --line-on-dark: rgba(255, 255, 255, 0.12);
+  --font-display: 'Space Grotesk', sans-serif;
   --white: #ffffff;
-  --max: 1380px;
+  --max: 1240px;
   --mono: 'DM Mono', monospace;
   --display: 'Space Grotesk', sans-serif;
-  --radius-sm: 2px;
+  --radius-sm: 8px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
   --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
